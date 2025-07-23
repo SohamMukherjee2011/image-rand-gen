@@ -2,7 +2,8 @@ import math, random
 from collections import Counter
 from statsmodels.tsa.stattools import acf
 import matplotlib.pyplot as plt
-
+import numpy as np
+from scipy.stats import norm
 #getting the data from the file
 with open("floats_test.txt", 'r') as file:
     f = file.readlines()
@@ -28,44 +29,39 @@ def shannon_entropy(data):
     total = len(data)
     return -sum((c / total) * math.log2(c / total) for c in counts.values())
 def runs_test(sequence):
+    median = np.median(sequence)
+    signs = ['+' if val > median else '-' for val in sequence]
+
     
-    if len(sequence) < 2:
-        print("Sequence too short for runs test.")
-        return
-
-    # Step 1: Convert to binary based on median
-    median = sorted(sequence)[len(sequence) // 2]
-    signs = [1 if x >= median else 0 for x in sequence]
-
-    # Step 2: Count runs
     runs = 1
     for i in range(1, len(signs)):
-        if signs[i] != signs[i - 1]:
+        if signs[i] != signs[i-1]:
             runs += 1
 
-    n1 = signs.count(1)
-    n2 = signs.count(0)
+    n1 = signs.count('+')
+    n2 = signs.count('-')
+    n = n1 + n2
 
     if n1 == 0 or n2 == 0:
-        print("All values on one side of median — not suitable for runs test.")
+        print("All values fall on one side of median — not suitable for test.")
         return
 
-    # Step 3: Calculate expected runs and standard deviation
-    expected = (2 * n1 * n2) / (n1 + n2) + 1
-    variance = (2 * n1 * n2 * (2 * n1 * n2 - n1 - n2)) / (((n1 + n2)**2) * (n1 + n2 - 1))
-    std_dev = variance ** 0.5
+    expected = (2 * n1 * n2) / n + 1
+    variance = (2 * n1 * n2 * (2 * n1 * n2 - n)) / (n**2 * (n - 1))
 
-    z = (runs - expected) / std_dev
+    z = (runs - expected) / np.sqrt(variance)
+    p_value = 2 * (1 - norm.cdf(abs(z)))
 
-    print(f"Runs Test (Wald–Wolfowitz):")
-    print(f"  Total Runs     : {runs}")
-    print(f"  Expected Runs  : {expected:.2f}")
-    print(f"  z-score        : {z:.2f}")
+    print(f"Runs: {runs}")
+    print(f"Expected Runs: {expected:.2f}")
+    print(f"Z-score: {z:.2f}")
+    print(f"P-value: {p_value:.4f}")
 
-    if abs(z) < 1.96:
-        print("Sequence appears random (95% confidence)")
+    if p_value < 0.05:
+        print("Reject H₀ — sequence may not be random.")
     else:
-        print("Sequence may not be random (pattern detected)")
+        print("Fail to reject H₀ — sequence appears random.")
+
 print("ENTROPY OF THE SET: ", shannon_entropy(history))
 runs_test(history)
 plt.hist(f, bins=50, edgecolor='black')
