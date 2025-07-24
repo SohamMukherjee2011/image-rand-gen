@@ -1,3 +1,10 @@
+'''
+##### GENERATES RANDOM NUMBERS FROM IMAGE AND STORES THEM IN FILES FOR TESTING #####
+The file specified in the paper could not be provided in the repository, since it is too large.
+If required, please mail to iamsoham2011@gmail.com, I will send the file over. Thank you.
+'''
+
+
 from PIL import Image
 import math
 from collections import Counter
