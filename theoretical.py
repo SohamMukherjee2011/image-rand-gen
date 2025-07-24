@@ -1,6 +1,10 @@
+'''
+##### GENERATES RANDOM NUMBERS USING BUILT-IN LIBRARY #####
+This file is used for benchmarking the custom-made RNG with an established PRNG
+'''
 import random
 file1 = open("floats_test.txt", 'w')
-file2 = open("test.txt", 'w')
+file2 = open("numbers_test.txt", 'w')
 L = []
 
 for i in range(6000):
